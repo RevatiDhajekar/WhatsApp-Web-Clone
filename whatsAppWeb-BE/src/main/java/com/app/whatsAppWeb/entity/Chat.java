@@ -39,7 +39,7 @@ public class Chat {
 	private Boolean isGroup;
 	
 	@ManyToMany
-	@JoinTable(name = "chat_user", 
+	@JoinTable(name = "chat_admin", 
 			joinColumns = @JoinColumn(name = "chat_id"), 
 			inverseJoinColumns = @JoinColumn(name = "admin_id"))
 	private Set<User> admins = new HashSet<>();

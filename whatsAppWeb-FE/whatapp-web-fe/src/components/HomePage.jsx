@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { TbCircleDashed } from "react-icons/tb";
 import { BiCommentDetail } from "react-icons/bi";
@@ -18,6 +18,8 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import CreateGroup from "./Group/CreateGroup";
+import { useDispatch, useSelector } from "react-redux";
+import { currentUser, logout } from "../Redux/Auth/Action";
 
 const HomePage = () => {
   const [queries, setQueries] = useState(null);
@@ -28,7 +30,10 @@ const HomePage = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [isGroup , setIsGroup] = useState(false);
   const open = Boolean(anchorEl);
+  const dispatch = useDispatch();
+  const auth = useSelector((store)=> store.auth);
 
+  const token = localStorage.getItem("token");
   const handleSearch = () => {};
 
   const handleClick = (e) => {
@@ -56,6 +61,21 @@ const HomePage = () => {
   const handleCreateGroup = () => {
     setIsGroup(true)
   }
+
+  const handleLogout =()=>{
+    dispatch(logout)
+    navigate("signin")
+  }
+
+  useEffect(()=>{
+    if(!auth.reqUser){
+      navigate("/signup")
+    }
+  },[auth.reqUser])
+
+  useEffect(()=>{
+    dispatch(currentUser(token))
+  },[token]);
 
   return (
     <div className="relative bg-slate-500">
@@ -119,7 +139,7 @@ const HomePage = () => {
                     >
                       <MenuItem onClick={handleClose}>Profile</MenuItem>
                       <MenuItem onClick={handleCreateGroup}>Create group</MenuItem>
-                      <MenuItem onClick={handleClose}>Logout</MenuItem>
+                      <MenuItem onClick={handleLogout}>Logout</MenuItem>
                     </Menu>
                   </div>
                 </div>
