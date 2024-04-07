@@ -1,6 +1,7 @@
 import { BASE_API_URL } from "../../config/Api"
 import { LOGIN, LOGOUT, REGISTER, REQ_USER, SEARCH_USER, UPDATE_USER } from "./ActionType";
 
+//signup
 export const register = (data) => async(dispatch) => {
     try {
         const resp = await fetch(`${BASE_API_URL}/auth/signup`,{
@@ -21,6 +22,7 @@ export const register = (data) => async(dispatch) => {
     }
 }
 
+//signin 
 export const login = (data) => async(dispatch) => {
     try {
         const resp = await fetch(`${BASE_API_URL}/auth/signin`,{
@@ -42,6 +44,7 @@ export const login = (data) => async(dispatch) => {
 }
 
 export const currentUser = (token) => async(dispatch) => {
+    debugger;
     console.log("cuurent user token => " , token);
     try {
         const resp = await fetch(`${BASE_API_URL}/api/users/profile`,{
@@ -52,7 +55,7 @@ export const currentUser = (token) => async(dispatch) => {
             },
         })
         const userData = await resp.json();
-        console.log("currentUser", userData)
+        console.log("currentUser : ", userData)
         dispatch({type:REQ_USER , payload:userData})
     } catch (error) {
         console.log("catch error ", error);
@@ -62,15 +65,16 @@ export const currentUser = (token) => async(dispatch) => {
 
 export const searchUser = (data) => async(dispatch) => {
     try {
+       // debugger;
         const resp = await fetch(`${BASE_API_URL}/api/users/searchUser?name=${data.keyword}`,{
             method:"GET",
             headers:{
                 "Content-Type":"application/json",
-            },
-            body:JSON.stringify(data)
+                Authorization:`Bearer ${data.token}`
+            }
         })
         const userData = await resp.json();
-        console.log("searchUser", userData)
+        console.log("searchUser =>", userData)
         dispatch({type:SEARCH_USER , payload:userData})
     } catch (error) {
         console.log("catch error ", error);

@@ -19,7 +19,8 @@ import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import CreateGroup from "./Group/CreateGroup";
 import { useDispatch, useSelector } from "react-redux";
-import { currentUser, logout } from "../Redux/Auth/Action";
+import { currentUser, logout, searchUser } from "../Redux/Auth/Action";
+import { createChat } from "../Redux/Chat/Action";
 
 const HomePage = () => {
   const [queries, setQueries] = useState(null);
@@ -34,7 +35,9 @@ const HomePage = () => {
   const auth = useSelector((store)=> store.auth);
 
   const token = localStorage.getItem("token");
-  const handleSearch = () => {};
+  const handleSearch = (keyword) => {
+    dispatch(searchUser({ keyword: keyword, token: token }));
+  };
 
   const handleClick = (e) => {
     setAnchorEl(e.currentTarget);
@@ -43,11 +46,14 @@ const HomePage = () => {
     setAnchorEl(null);
   };
 
-  const handleClickOnChatcard = () => {
+  const handleClickOnChatcard = (userId) => { 
     setCurrentChat(true);
+    // dispatch(createChat({ userId: userId, token: token }))
   };
 
-  const handleCreateNewMessage = () => {};
+  const handleCreateNewMessage = (userId) => {
+   
+  };
 
   const handleNavigates = () => {
     // navigate("/profile");
@@ -63,8 +69,8 @@ const HomePage = () => {
   }
 
   const handleLogout =()=>{
-    dispatch(logout)
-    navigate("signin")
+    dispatch(logout())
+    navigate("/signup")
   }
 
   useEffect(()=>{
@@ -102,7 +108,7 @@ const HomePage = () => {
                     src="https://cdn.pixabay.com/photo/2014/02/27/16/10/flowers-276014_640.jpg"
                     alt=""
                   />
-                  <p>username</p>
+                  <p>{auth.reqUser?.fullName}</p>
                 </div>
                 <div className="space-x-3 text-2xl flex ">
                   <TbCircleDashed
@@ -163,12 +169,12 @@ const HomePage = () => {
               </div>
               {/* all users */}
               <div className="bg-white overflow-y-scroll h-[72vh] px-3 scrollbar-hide">
-                {queries &&
-                  [1, 1, 1, 1, 1].map((item) => (
-                    <div onClick={handleClickOnChatcard}>
+                {queries && 
+                  auth.searchUser?.map((item) => (
+                    <div key={item.id} onClick={()=> handleClickOnChatcard(item.id)}>
                       {" "}
                       <hr />
-                      <ChatCard />{" "}
+                      <ChatCard user={item}/>{" "}
                     </div>
                   ))}
               </div>
@@ -182,7 +188,7 @@ const HomePage = () => {
           <div className="w-[70%] flex flex-col items-center justify-center h-full">
             <div className="w-full text-center">
               <img
-                className="w-[30%] mx-auto"
+                className="w-[30%] mx-auto fixed-image"
                 src="https://png.pngtree.com/png-vector/20221018/ourmid/pngtree-whatsapp-mobile-software-icon-png-image_6315991.png"
                 alt=""
               />

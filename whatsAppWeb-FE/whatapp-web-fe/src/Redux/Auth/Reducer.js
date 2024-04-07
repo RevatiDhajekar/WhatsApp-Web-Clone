@@ -2,7 +2,7 @@ const initialValue = {
   signup: null,
   signin: null,
   reqUser: null,
-  searchUser: null,
+  searchUser: [],
   updatedUser: null,
 };
 

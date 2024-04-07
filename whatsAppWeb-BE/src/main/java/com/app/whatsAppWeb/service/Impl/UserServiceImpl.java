@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<User> searchUser(String query) {
-		return userRepository.serachUser(query);
+		return userRepository.serachUser(query.toLowerCase());
 	}
 
 }

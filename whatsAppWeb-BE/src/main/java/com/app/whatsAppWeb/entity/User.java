@@ -37,7 +37,7 @@ public class User {
 	
 	private String password;
 	
-	@Column(name = "profile_image")
+	@Column(name = "profile_image", length = 2000)
 	private String profileImage;
 	
 	@ManyToMany(mappedBy = "admins")
@@ -47,5 +47,5 @@ public class User {
 	private Set<Chat> chats = new HashSet<>();
 	
 	@OneToMany(mappedBy = "user")
-	private List<Message> messages = new ArrayList<>();;
+	private List<Message> messages = new ArrayList<>();
 }

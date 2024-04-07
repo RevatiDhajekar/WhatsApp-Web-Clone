@@ -16,8 +16,6 @@ const Signup = () => {
   const auth = useSelector((store)=>store.auth);
   const token = localStorage.getItem("token");
 
-  console.log("current user=",auth.reqUser)
-
   useEffect(()=>{
     if(token){
         dispatch(currentUser(token));
