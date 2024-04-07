@@ -1,5 +1,6 @@
 package com.app.whatsAppWeb.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.app.whatsAppWeb.entity.User;
 import com.app.whatsAppWeb.exception.UserException;
@@ -29,9 +31,13 @@ public class UserController {
 		return new ResponseEntity<User>(user, HttpStatus.ACCEPTED);
 	}
 
-	@GetMapping("searchUser/{query}")
-	public ResponseEntity<List<User>> searchUser(@PathVariable("query") String query){
-		List<User> userList = userService.searchUser(query);
+	@GetMapping("/searchUser")
+	public ResponseEntity<List<User>> searchUser(@RequestParam("name") String name,@RequestHeader("Authorization") String jwtToken) throws UserException{
+		User user = userService.findUserProfile(jwtToken);
+		List<User> userList = new ArrayList<>();
+		if(user != null) {
+		userList = userService.searchUser(name);
+		}
 		return new ResponseEntity<List<User>>(userList ,  HttpStatus.OK);
 	}
 

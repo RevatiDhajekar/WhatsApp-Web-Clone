@@ -1,5 +1,7 @@
 package com.app.whatsAppWeb.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +51,13 @@ public class ChatController {
 		return new ResponseEntity<Chat>(chat , HttpStatus.OK);
 	}
 	
+	@GetMapping("/getAllChats")
+	public ResponseEntity<List<Chat>> findAllChatsByUserId(@RequestHeader("Authorization") String  jwtToken) throws UserException{
+		User user = userService.findUserProfile(jwtToken);
+		List<Chat> chats = chatService.findAllChatsByUserId(user.getId());
+		return new ResponseEntity<List<Chat>>(chats , HttpStatus.OK);
+	}
+	
 	@GetMapping("/findChat/{chatId}")
 	public ResponseEntity<Chat> findChatById(@PathVariable("chatId") Integer chatId) throws ChatException{
 		Chat chat = chatService.findChatById(chatId);
@@ -83,7 +92,7 @@ public class ChatController {
 	}
 	
 	@DeleteMapping("/deleteChat/{chatId}")
-	public ResponseEntity<ApiResponse> renameGroup(@PathVariable("chatId") Integer chatId,
+	public ResponseEntity<ApiResponse> deleteChat(@PathVariable("chatId") Integer chatId,
 			        @RequestHeader("Authorization") String jwtToken) throws UserException, ChatException{
 		User reqUser = userService.findUserProfile(jwtToken);
 		chatService.deleteChat(chatId , reqUser.getId());
