@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -35,17 +37,21 @@ public class User {
 	
 	private String email;
 	
+	@JsonIgnore
 	private String password;
 	
 	@Column(name = "profile_image", length = 2000)
 	private String profileImage;
 	
+	@JsonIgnore
 	@ManyToMany(mappedBy = "admins")
 	private Set<Chat> groups = new HashSet<>();
 	
+	@JsonIgnore
 	@ManyToMany(mappedBy = "users")
 	private Set<Chat> chats = new HashSet<>();
 	
+	@JsonIgnore
 	@OneToMany(mappedBy = "user")
 	private List<Message> messages = new ArrayList<>();
 }

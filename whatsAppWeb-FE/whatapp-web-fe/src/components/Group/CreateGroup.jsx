@@ -3,18 +3,25 @@ import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import SelectedMember from "./SelectedMember";
 import ChatCard from "../ChatCard";
 import NewGroup from "./NewGroup";
+import { useDispatch, useSelector } from "react-redux";
+import { searchUser } from "../../Redux/Auth/Action";
 
-const CreateGroup = () => {
+const CreateGroup = ({setIsGroup}) => {
   const [newGroup, setNewGroup] = useState(false);
   const [groupMember, setGroupMember] = useState(new Set());
   const [query, setQuery] = useState(null);
+  const dispatch = useDispatch();
+  const token = localStorage.getItem("token");
+  const auth = useSelector((state)=>state.auth);
 
   const removeMember = (item) => {
     groupMember.delete(item);
     setGroupMember(groupMember);
   };
 
-  const handleSearch = () => {};
+  const handleSearch = (keyword) => {
+    dispatch(searchUser({ keyword: keyword, token:token }));
+  };
 
   return (
     <div className="w-full h-full">
@@ -36,11 +43,11 @@ const CreateGroup = () => {
                 ))}
             </div>
 
-            <input
+            < input
               type="text"
               onChange={(e) => {
-                handleSearch(e.target.value);
                 setQuery(e.target.value)
+                handleSearch(e.target.value);
               }}
               className="outline-none border-b border-[#8888] px-2 py-2 w-[93%]"
               placeholder="Search user"
@@ -49,14 +56,14 @@ const CreateGroup = () => {
           </div>
 
           <div className="bg-white overflow-y-scroll scrollbar-hide h-[50.2vh]">
-              {query && [1,1,1,1,1,1,1].map((item) => <div onClick={()=>{
+              {query && auth.searchUser?.map((item) => <div onClick={()=>{
                 groupMember.add(item)
                 setGroupMember(groupMember)
-                setQuery(null)
+                setQuery("")
               }}
               key={item?.id}>
                 <hr />
-                <ChatCard/>
+                <ChatCard name={item.fullName} userImg={item.profileImage}/>
               </div>)}
           </div>
 
@@ -70,7 +77,7 @@ const CreateGroup = () => {
           </div>
         </div>
       )}
-      {newGroup && <NewGroup/>}
+      {newGroup && <NewGroup groupMember={groupMember} setIsGroup={setIsGroup}/>}
     </div>
   );
 };

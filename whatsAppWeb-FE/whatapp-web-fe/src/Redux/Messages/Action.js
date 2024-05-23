@@ -15,6 +15,7 @@ export const sendNewMessage=(messageData)=>async(dispatch)=>{
             body:JSON.stringify(messageData.data) 
         }) //fetch end
         const data = await response.json();
+        console.log("create new mseesage: ",data)
         dispatch({type:CREATE_NEW_MESSAGE,payload:data});
     } catch (error) {
         console.log(error);
@@ -31,6 +32,7 @@ export const getAllMessages=(reqdata)=>async(dispatch)=>{
             },
         }) //fetch end
         const data = await response.json();
+        console.log("all messages :",data)
         dispatch({type:GET_ALL_MESSAGES,payload:data});
     } catch (error) {
         console.log(error);

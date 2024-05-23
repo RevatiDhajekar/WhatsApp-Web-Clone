@@ -43,7 +43,7 @@ public class MessageController {
 		return new ResponseEntity<Message>(msg,HttpStatus.OK);
 	}
 	
-	@GetMapping("/chat{chatId}")
+	@GetMapping("/chat/{chatId}")
 	public ResponseEntity<List<Message>> getChatsMessages(@PathVariable("chatId") Integer chatId,
 			@RequestHeader("Authorization") String jwt) throws UserException, ChatException{
 		User user = userService.findUserProfile(jwt);

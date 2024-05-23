@@ -11,7 +11,7 @@ export const createChat =(chatData)=> async(dispatch) =>{
                 "Content-Type":"application/json",
                 Authorization:`Bearer ${chatData.token}`
             },
-            body:JSON.stringify(chatData.userId)  //send data to server in string format
+            body:JSON.stringify(chatData)  //send data to server in string format
         }) //fetch end
 
         const data = await response.json();
@@ -47,7 +47,7 @@ export const getAllChatsOfUser =(chatData)=> async(dispatch) =>{
             headers :{
                 method:"GET",
                 "Content-Type":"application/json",
-                Authorization:`Bearer ${chatData.token}`
+                Authorization:`Bearer ${chatData}`
             }
         }) //fetch end
 

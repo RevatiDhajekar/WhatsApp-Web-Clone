@@ -20,7 +20,8 @@ import Button from "@mui/material/Button";
 import CreateGroup from "./Group/CreateGroup";
 import { useDispatch, useSelector } from "react-redux";
 import { currentUser, logout, searchUser } from "../Redux/Auth/Action";
-import { createChat } from "../Redux/Chat/Action";
+import { createChat, getAllChatsOfUser } from "../Redux/Chat/Action";
+import { getAllMessages, sendNewMessage } from "../Redux/Messages/Action";
 
 const HomePage = () => {
   const [queries, setQueries] = useState(null);
@@ -29,11 +30,12 @@ const HomePage = () => {
   const [isProfile, setIsProfile] = useState(false);
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
-  const [isGroup , setIsGroup] = useState(false);
+  const [isGroup, setIsGroup] = useState(false);
   const open = Boolean(anchorEl);
   const dispatch = useDispatch();
-  const auth = useSelector((store)=> store.auth);
-
+  const auth = useSelector((store) => store.auth); 
+  const chat = useSelector((store) => store.chat);
+  const message = useSelector((store) => store.message); 
   const token = localStorage.getItem("token");
   const handleSearch = (keyword) => {
     dispatch(searchUser({ keyword: keyword, token: token }));
@@ -46,13 +48,20 @@ const HomePage = () => {
     setAnchorEl(null);
   };
 
-  const handleClickOnChatcard = (userId) => { 
+  const handleClickOnChatcard = (userId) => {
     setCurrentChat(true);
-    // dispatch(createChat({ userId: userId, token: token }))
+    setQueries("");
+    dispatch(createChat({ userId: userId, token: token }));
   };
 
-  const handleCreateNewMessage = (userId) => {
-   
+  const handleCurrentChat = (item) =>{
+    setCurrentChat(item);
+  }
+
+  console.log("current chat = ",currentChat);
+
+  const handleCreateNewMessage = () => {
+    dispatch(sendNewMessage({token, data:{chatId:currentChat.id , content:content} }))
   };
 
   const handleNavigates = () => {
@@ -65,23 +74,33 @@ const HomePage = () => {
   };
 
   const handleCreateGroup = () => {
-    setIsGroup(true)
-  }
+    setIsGroup(true);
+  };
 
-  const handleLogout =()=>{
-    dispatch(logout())
-    navigate("/signup")
-  }
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/signup");
+  };
 
-  useEffect(()=>{
-    if(!auth.reqUser){
-      navigate("/signup")
+  useEffect(() => {
+    if (!auth.reqUser) {
+      navigate("/signup");
     }
-  },[auth.reqUser])
+  }, [auth?.reqUser]);
+
+  useEffect(() => {
+    dispatch(currentUser(token));
+  }, [token,auth.reqUser?.fullName]);
+
+  useEffect(() => {
+    dispatch(getAllChatsOfUser(token)); //getting all users chat for right side
+  }, [chat.createChat, chat.CreateGroup]); //whenever new chat or group created , it will dispatch action getAllChatsOfUser
 
   useEffect(()=>{
-    dispatch(currentUser(token))
-  },[token]);
+    if(currentChat?.id)
+    dispatch(getAllMessages({token,chatId:currentChat.id}))
+  }, [currentChat,message.newMessage])
+
 
   return (
     <div className="relative bg-slate-500">
@@ -89,13 +108,13 @@ const HomePage = () => {
       <div className="flex bg-[#f0f2f5] h-[91vh] absolute top-[5vh] left-[2vw] w-[96vw]">
         <div className="left w-[30%] bg-[#e8e9ec] h-full">
           {/* Profile */}
-          {isGroup && <CreateGroup/>}
+          {isGroup && <CreateGroup setIsGroup={setIsGroup}/>}
           {isProfile && (
             <div className="w-full h-full">
               <Profile handleProfileOpenClose={handleProfileOpenClose} />
             </div>
           )}
-          {!isProfile &&  !isGroup && (
+          {!isProfile && !isGroup && (
             <div className="w-full">
               {/* Home */}
               <div className="flex items-center justify-between p-1 ">
@@ -105,7 +124,7 @@ const HomePage = () => {
                 >
                   <img
                     className="rounded-full w-10 h-10 cursor-pointer"
-                    src="https://cdn.pixabay.com/photo/2014/02/27/16/10/flowers-276014_640.jpg"
+                    src={auth.reqUser?.profileImage || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"}
                     alt=""
                   />
                   <p>{auth.reqUser?.fullName}</p>
@@ -127,7 +146,7 @@ const HomePage = () => {
                       aria-expanded={open ? "true" : undefined}
                       onClick={handleClick}
                     />
-                    <Button/>
+                    <Button />
                     <Menu
                       id="demo-positioned-menu"
                       aria-labelledby="demo-positioned-button"
@@ -144,7 +163,9 @@ const HomePage = () => {
                       }}
                     >
                       <MenuItem onClick={handleClose}>Profile</MenuItem>
-                      <MenuItem onClick={handleCreateGroup}>Create group</MenuItem>
+                      <MenuItem onClick={handleCreateGroup}>
+                        Create group
+                      </MenuItem>
                       <MenuItem onClick={handleLogout}>Logout</MenuItem>
                     </Menu>
                   </div>
@@ -169,12 +190,56 @@ const HomePage = () => {
               </div>
               {/* all users */}
               <div className="bg-white overflow-y-scroll h-[72vh] px-3 scrollbar-hide">
-                {queries && 
+                {/* if any searches */}
+                {queries &&
                   auth.searchUser?.map((item) => (
-                    <div key={item.id} onClick={()=> handleClickOnChatcard(item.id)}>
+                    <div
+                      key={item.id}
+                      onClick={() => handleClickOnChatcard(item.id)}
+                    >
                       {" "}
                       <hr />
-                      <ChatCard user={item}/>{" "}
+                      <ChatCard
+                        name={item.fullName}
+                        userImg={item.profileImage}
+                      />{" "}
+                    </div>
+                  ))}
+                {/* on loading */}
+                {chat.chats.length > 0 &&
+                  !queries &&
+                  chat.chats?.map((item) => (
+                    <div
+                      key={item.id}
+                      onClick={() => handleCurrentChat(item)}
+                    >
+                      {" "}
+                      <hr />
+                      {item.isGroup ? (
+                        //for group
+                        <ChatCard
+                          name={item.chatName}
+                          userImg={item.chatImage || ""}
+                        />
+                      ) : (
+                        //if single chat
+                        <ChatCard
+                          name={
+                            item.users && item.users.length >= 2
+                            ? auth.reqUser?.id !== item.users[0].id
+                                ? item.users[0].fullName
+                                : item.users[1].fullName
+                            : "Unknown"
+                          }
+                          userImg={
+                            item.users && item.users.length >= 2
+                            ? auth.reqUser?.id !== item.users[0]?.id
+                              ? item.users[0].profileImage
+                              : item.users[1].profileImage
+                              :""
+                          }
+                        />
+                      )}
                     </div>
                   ))}
               </div>
@@ -211,10 +276,17 @@ const HomePage = () => {
                 <div className="py-3 space-x-4 flex items-center px-3 ">
                   <img
                     className="w-10 h-10 rounded-full cursor-pointer"
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR77iOanUEwD6cR1bth7E0y0jnAJCnDH6Zp1Q&usqp=CAU"
+                    src={currentChat.isGroup ?
+                      currentChat.chatImage :
+                      currentChat && auth.reqUser?.id===currentChat.users[0].id ? currentChat.users[1]?.profileImage : currentChat.users[0]?.profileImage
+                  }
                     alt=""
                   />
-                  <p>username</p>
+                  <p>{currentChat.isGroup ?
+                    currentChat.chatName :
+                    currentChat && auth.reqUser?.id===currentChat.users[0].id ? currentChat.users[1]?.fullName : currentChat.users[0]?.fullName
+                }</p>
+                  
                 </div>
                 <div className="py-3 space-x-4 items-center px-3 flex">
                   <AiOutlineSearch />
@@ -226,10 +298,10 @@ const HomePage = () => {
             {/* message section */}
             <div className="px-10 h-[85vh] overflow-y-scroll bg-blue-200 scrollbar-hide">
               <div className="space-y-1 flex flex-col justify-center mt-20 py-2">
-                {[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map((item, i) => (
+                {message.messages.length>0 && message.messages?.map((item, i) => (
                   <MessageCard
-                    isReqUserMsg={i % 2 === 0}
-                    content={"messageee"}
+                    isReqUserMsg={item.user.id!==auth.reqUser.id}
+                    content={item.content}
                   />
                 ))}
               </div>

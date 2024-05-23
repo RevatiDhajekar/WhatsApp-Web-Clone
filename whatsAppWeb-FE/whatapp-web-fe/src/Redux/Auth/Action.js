@@ -44,7 +44,6 @@ export const login = (data) => async(dispatch) => {
 }
 
 export const currentUser = (token) => async(dispatch) => {
-    debugger;
     console.log("cuurent user token => " , token);
     try {
         const resp = await fetch(`${BASE_API_URL}/api/users/profile`,{
@@ -58,7 +57,8 @@ export const currentUser = (token) => async(dispatch) => {
         console.log("currentUser : ", userData)
         dispatch({type:REQ_USER , payload:userData})
     } catch (error) {
-        console.log("catch error ", error);
+        // console.log("catch error ", error);
+            console.log("Error fetching user profile:", error.message);        
     }
 }
 
@@ -83,12 +83,13 @@ export const searchUser = (data) => async(dispatch) => {
 
 export const updateUser = (data) => async(dispatch) => {
     try {
-        const resp = await fetch(`${BASE_API_URL}/api/users/update/${data.id}`,{
+        const resp = await fetch(`${BASE_API_URL}/api/users/update`,{
             method:"PUT",
             headers:{
                 "Content-Type":"application/json",
+                Authorization:`Bearer ${data.token}`
             },
-            body:JSON.stringify(data)
+            body:JSON.stringify(data.data)
         })
         const userData = await resp.json();
         console.log("register", userData)

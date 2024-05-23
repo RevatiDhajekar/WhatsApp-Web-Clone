@@ -36,6 +36,8 @@ public class ChatServiceImpl implements ChatService{
 		newChat.getUsers().add(userTochat);
 		newChat.getUsers().add(reqUser);
 		newChat.setIsGroup(false);
+		newChat.setChatName(userTochat.getFullName());
+		newChat.setChatImage(userTochat.getProfileImage());
 		chatRepository.save(newChat);
 		return newChat;
 	}
@@ -52,7 +54,7 @@ public class ChatServiceImpl implements ChatService{
 	@Override
 	public List<Chat> findAllChatsByUserId(Integer userId) throws UserException {
 		User user = userService.findUserById(userId);
-		List<Chat> chatList = chatRepository.findChatByUser(user);
+		List<Chat> chatList = chatRepository.findChatsByUser(user);
 		return chatList;
 	}
 
@@ -68,6 +70,7 @@ public class ChatServiceImpl implements ChatService{
 			User user = userService.findUserById(id);
 			group.getUsers().add(user);
 		}
+		group.getUsers().add(reqUser);
 		chatRepository.save(group);
 		return group;
 	}
